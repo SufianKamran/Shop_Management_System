@@ -1,0 +1,300 @@
+//Clear code with comments added with help of gpt for better understanding
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <windows.h>
+
+using namespace std;
+
+// Node structure for linked list
+class Node {
+public:
+    int ID;
+    string proName;
+    double prePrice;
+    int quantity;
+    Node* next;
+};
+
+Node* head = NULL;
+
+// Function prototypes
+void addProduct();
+int displayProducts();
+void modifyProduct();
+void deleteProduct();
+void buyProduct();
+int searchProduct(int id);
+string checkQuantity(int quant);
+void administratorMenu();
+void mainMenu();
+int hashFunction(int x, int mod);
+
+// Function implementations
+
+// Add a new product
+void addProduct() {
+    system("cls");
+    int id, quant;
+    string name;
+    double price;
+    Node* newNode = new Node;
+
+    cout << "Enter product ID: ";
+    cin >> id;
+    newNode->ID = id;
+
+    cout << "Enter product name: ";
+    cin >> name;
+    newNode->proName = name;
+
+    cout << "Enter product price: ";
+    cin >> price;
+    newNode->prePrice = price;
+
+    cout << "Enter product quantity: ";
+    cin >> quant;
+    newNode->quantity = quant;
+
+    newNode->next = head;
+    head = newNode;
+
+    system("cls");
+    cout << "Product added successfully!" << endl;
+}
+
+// Display all products
+int displayProducts() {
+    system("cls");
+    int count = 0;
+    Node* p = head;
+    cout << "Existing products are:\n";
+    cout << "ID\tProduct Name\tPrice\tQuantity\n";
+    cout << "===============================================\n";
+    while (p != NULL) {
+        cout << p->ID << "\t" << p->proName << "\t" << p->prePrice << "\t" << checkQuantity(p->quantity) << "\n";
+        p = p->next;
+        count++;
+    }
+    cout << "\nTotal products in our store: " << count << "\n\n";
+    return count;
+}
+
+// Modify an existing product
+void modifyProduct() {
+    system("cls");
+    int id, newID, newQuantity;
+    double newPrice;
+    string newName;
+
+    if (head == NULL) {
+        cout << "List is empty\n";
+        return;
+    }
+
+    displayProducts();
+    cout << "Enter ID to modify product: ";
+    cin >> id;
+    Node* current = head;
+    while (current != NULL && current->ID != id) {
+        current = current->next;
+    }
+
+    if (current == NULL) {
+        cout << "Product not found\n";
+        return;
+    }
+
+    cout << "Enter new ID: ";
+    cin >> newID;
+    cout << "Enter new name: ";
+    cin >> newName;
+    cout << "Enter new price: ";
+    cin >> newPrice;
+    cout << "Enter new quantity: ";
+    cin >> newQuantity;
+
+    current->ID = newID;
+    current->proName = newName;
+    current->prePrice = newPrice;
+    current->quantity = newQuantity;
+
+    system("cls");
+    cout << "Product modified successfully!" << endl;
+}
+
+// Delete a product
+void deleteProduct() {
+    system("cls");
+    displayProducts();
+    int id;
+    cout << "Enter ID to delete product: ";
+    cin >> id;
+
+    Node* current = head;
+    Node* previous = NULL;
+
+    while (current != NULL && current->ID != id) {
+        previous = current;
+        current = current->next;
+    }
+
+    if (current == NULL) {
+        cout << "Product not found\n";
+        return;
+    }
+
+    if (previous == NULL) {
+        head = current->next;
+    } else {
+        previous->next = current->next;
+    }
+
+    delete current;
+    system("cls");
+    cout << "Product deleted successfully!" << endl;
+}
+
+// Buy products
+void buyProduct() {
+    system("cls");
+    displayProducts();
+    int pay = 0, no, quant, id;
+
+    if (head == NULL) {
+        cout << "There are no items to buy\n";
+        return;
+    }
+
+    cout << "How many items do you want to buy? ";
+    cin >> no;
+
+    for (int i = 0; i < no; ++i) {
+        cout << "Enter product ID to buy: ";
+        cin >> id;
+        Node* current = head;
+        while (current != NULL && current->ID != id) {
+            current = current->next;
+        }
+
+        if (current == NULL) {
+            cout << "Product not found\n";
+            --i;
+            continue;
+        }
+
+        cout << "Enter quantity: ";
+        cin >> quant;
+
+        if (quant > current->quantity) {
+            cout << "Not enough stock available\n";
+            --i;
+            continue;
+        }
+
+        current->quantity -= quant;
+        pay += current->prePrice * quant;
+    }
+
+    cout << "Total price: " << pay << "\n";
+    cout << "Thank you for shopping!" << endl;
+}
+
+// Search for a product by ID
+int searchProduct(int id) {
+    int count = 1;
+    Node* p = head;
+    while (p != NULL) {
+        if (p->ID == id) break;
+        count++;
+        p = p->next;
+    }
+    return count;
+}
+
+// Check quantity of a product
+string checkQuantity(int quant) {
+    if (quant <= 0)
+        return "Out of stock!";
+    else
+        return to_string(quant);
+}
+
+// Hash function
+int hashFunction(int x, int mod) {
+    return x % mod;
+}
+
+// Administrator menu
+void administratorMenu() {
+    int choice;
+
+    do {
+        system("cls");
+        cout << "Administrator Portal\n";
+        cout << "1. Add a new product\n";
+        cout << "2. Display all products\n";
+        cout << "3. Modify an existing product\n";
+        cout << "4. Delete a product\n";
+        cout << "0. Back to main menu\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                addProduct();
+                break;
+            case 2:
+                displayProducts();
+                system("pause");
+                break;
+            case 3:
+                modifyProduct();
+                system("pause");
+                break;
+            case 4:
+                deleteProduct();
+                system("pause");
+                break;
+            default:
+                break;
+        }
+    } while (choice != 0);
+}
+
+// Main menu
+void mainMenu() {
+    int choice;
+
+    do {
+        system("cls");
+        cout << "Main Menu\n";
+        cout << "1. Administrator\n";
+        cout << "2. Customer\n";
+        cout << "3. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                administratorMenu();
+                break;
+            case 2:
+                buyProduct();
+                system("pause");
+                break;
+            case 3:
+                cout << "Thank you!" << endl;
+                break;
+            default:
+                cout << "Invalid choice\n";
+                break;
+        }
+    } while (choice != 3);
+}
+
+// Main function
+int main() {
+    mainMenu();
+    return 0;
+}
